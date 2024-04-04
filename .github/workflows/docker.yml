@@ -16,7 +16,11 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        otp-version: ['25', '26']
+        otp:
+          - version: 25
+            pip_flags: ''
+          - version: 26
+            pip_install_flags: '--break-system-packages'
         fdb-version: ['7.3.35']
 
     steps:
@@ -31,9 +35,10 @@ jobs:
       - uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}:erlang-${{ matrix.otp-version }}-fdb-${{ matrix.fdb-version }}
+          tags: ghcr.io/${{ github.repository }}:erlang-${{ matrix.otp.version }}-fdb-${{ matrix.fdb-version }}
           file: .devcontainer/Dockerfile
           context: .devcontainer
           build-args: |
             FDB_VERSION=${{ matrix.fdb-version }}
-            ERLANG_VERSION=${{ matrix.otp-version }}
+            ERLANG_VERSION=${{ matrix.otp.version }}
+            PIP_INSTALL_FLAGS=${{ matrix.otp.pip_install_flags }}

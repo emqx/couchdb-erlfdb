@@ -1,5 +1,6 @@
 ARG FDB_VERSION
 ARG ERLANG_VERSION
+ARG PIP_INSTALL_FLAGS
 
 # Grab fdbcli and client library from same image as server
 FROM foundationdb/foundationdb:${FDB_VERSION} as fdb
@@ -13,7 +14,7 @@ ARG FDB_VERSION
 
 # Install the FDB client used underneath erlfdb
 RUN set -ex; \
-    wget https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients_${FDB_VERSION}-1_amd64.deb; \
+    wget -q https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients_${FDB_VERSION}-1_amd64.deb; \
     mkdir /var/lib/foundationdb; \
     dpkg -i foundationdb-clients_${FDB_VERSION}-1_amd64.deb; \
     rm foundationdb-clients_${FDB_VERSION}-1_amd64.deb
@@ -36,8 +37,10 @@ RUN set -ex; \
         python3-pip; \
     rm -rf /var/lib/apt/lists/*
 
+ARG PIP_INSTALL_FLAGS
+
 # FDB bindings tester uses the Python bindings
-RUN pip3 install foundationdb==${FDB_VERSION}
+RUN pip3 install foundationdb==${FDB_VERSION} ${PIP_INSTALL_FLAGS}
 
 COPY create_cluster_file.bash /usr/local/bin/
 

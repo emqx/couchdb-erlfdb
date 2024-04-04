@@ -829,6 +829,37 @@ erlfdb_database_open_tenant(
 
 
 static ERL_NIF_TERM
+erlfdb_tenant_get_id(
+        ErlNifEnv* env,
+        int argc,
+        const ERL_NIF_TERM argv[]
+    )
+{
+    ErlFDBSt* st = (ErlFDBSt*) enif_priv_data(env);
+    ErlFDBTenant* t;
+    void* res;
+    FDBFuture* future;
+
+    if(st->lib_state != ErlFDB_CONNECTED) {
+        return enif_make_badarg(env);
+    }
+
+    if(argc != 1) {
+        return enif_make_badarg(env);
+    }
+
+    if(!enif_get_resource(env, argv[0], ErlFDBTenantRes, &res)) {
+        return enif_make_badarg(env);
+    }
+    t = (ErlFDBTenant*) res;
+
+    future = fdb_tenant_get_id(t->tenant);
+
+    return erlfdb_create_future(env, future, erlfdb_future_get_int64);
+}
+
+
+static ERL_NIF_TERM
 erlfdb_tenant_create_transaction(
         ErlNifEnv* env,
         int argc,
@@ -2272,6 +2303,7 @@ static ErlNifFunc funcs[] =
     NIF_FUNC(erlfdb_create_database, 1),
     NIF_FUNC(erlfdb_database_set_option, 3),
     NIF_FUNC(erlfdb_database_open_tenant, 2),
+    NIF_FUNC(erlfdb_tenant_get_id, 1),
     NIF_FUNC(erlfdb_database_create_transaction, 1),
 
     NIF_FUNC(erlfdb_tenant_create_transaction, 1),

@@ -795,7 +795,7 @@ execute(_TxObj, #st{tenant = Tenant} = St, <<"TENANT_GET_ID">>) ->
     case Tenant of
         undefined -> stack_push(St, <<"NO_ACTIVE_TENANT">>);
         _ ->
-            %% TODO: get tenant id actually
+            _Id = erlfdb:wait(erlfdb_tenant:get_id(Tenant)),
             stack_push(St, <<"GOT_TENANT_ID">>)
     end,
     St;

@@ -33,6 +33,7 @@
     database_create_transaction/1,
 
     tenant_create_transaction/1,
+    tenant_get_id/1,
 
     transaction_set_option/2,
     transaction_set_option/3,
@@ -293,6 +294,10 @@ database_create_transaction({erlfdb_database, Db}) ->
 -spec tenant_create_transaction(tenant()) -> transaction().
 tenant_create_transaction({erlfdb_tenant, Db}) ->
     erlfdb_tenant_create_transaction(Db).
+
+-spec tenant_get_id(tenant()) -> future().
+tenant_get_id({erlfdb_tenant, Db}) ->
+    erlfdb_tenant_get_id(Db).
 
 -spec transaction_set_option(transaction(), Option :: transaction_option()) -> ok.
 transaction_set_option(Transaction, Option) ->
@@ -580,6 +585,7 @@ erlfdb_database_create_transaction(_Database) -> ?NOT_LOADED.
 
 %% Tenants
 erlfdb_tenant_create_transaction(_Database) -> ?NOT_LOADED.
+erlfdb_tenant_get_id(_Tenant) -> ?NOT_LOADED.
 
 % Transactions
 erlfdb_transaction_set_option(_Transaction, _TransactionOption, _Value) -> ?NOT_LOADED.

@@ -12,10 +12,10 @@
 
 -module(erlfdb_tenant).
 
--export([create_tenant/2, open_tenant/2, delete_tenant/2, list_tenants/4]).
+-export([create_tenant/2, open_tenant/2, delete_tenant/2, list_tenants/4, get_id/1]).
 
 -define(IS_DB, {erlfdb_database, _}).
--define(TENANT_MAP_PREFIX, <<16#FF, 16#FF, "/management/tenant_map/">>).
+-define(TENANT_MAP_PREFIX, <<16#FF, 16#FF, "/management/tenant/map/">>).
 -define(MAX_LIMIT, 2147483647).
 
 -import(erlfdb, [get/2, clear/2, set/3, wait/1, transactional/2, set_option/2]).
@@ -58,6 +58,9 @@ list_tenants(Db, From, To, Limit) ->
         false ->
             []
     end.
+
+get_id(Tenant) ->
+    erlfdb_nif:tenant_get_id(Tenant).
 
 do_list_tenants(?IS_DB = Db, From, To, Limit) ->
     transactional(Db, fun(Tx) ->
