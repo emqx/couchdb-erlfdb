@@ -591,7 +591,7 @@ erlfdb_future_cancel(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     future = (ErlFDBFuture*) res;
 
     enif_mutex_lock(future->lock);
-
+    future->pid_env = env;
     future->cancelled = true;
     fdb_future_cancel(future->future);
 
