@@ -36,7 +36,6 @@ struct _ErlFDBFuture
     ErlNifPid pid;
     ErlNifEnv* msg_env;
     ERL_NIF_TERM msg_ref;
-    ErlNifMutex* msg_lock;
     ErlDrvTSDKey future_proc_env_key;
     bool cancelled;
     ErlNifMutex* cancel_lock;

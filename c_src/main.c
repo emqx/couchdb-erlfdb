@@ -86,22 +86,15 @@ erlfdb_future_cb(FDBFuture* fdb_future, void* data)
     cancelled = future->cancelled;
     enif_mutex_unlock(future->cancel_lock);
 
-    enif_mutex_lock(future->msg_lock);
-
     if(future->msg_env != NULL) {
-
         if(!cancelled) {
             proc_env = (ErlNifEnv*) erl_drv_tsd_get(future->future_proc_env_key);
             msg = T2(future->msg_env, future->msg_ref, ATOM_ready);
             enif_send(proc_env, &(future->pid), future->msg_env, msg);
-        } else {
-            enif_free_env(future->msg_env);
         }
-
+        enif_free_env(future->msg_env);
         future->msg_env = NULL;
     }
-
-    enif_mutex_unlock(future->msg_lock);
 
     // We're now done with this future which means we need
     // to release our handle to it. See erlfdb_create_future
@@ -132,7 +125,6 @@ erlfdb_create_future(ErlNifEnv* env, FDBFuture* future, ErlFDBFutureGetter gette
     enif_self(env, &(f->pid));
     f->msg_env = enif_alloc_env();
     f->msg_ref = enif_make_copy(f->msg_env, ref);
-    f->msg_lock = enif_mutex_create("fdb:future_msg_lock");
 
     f->cancelled = false;
     f->cancel_lock = enif_mutex_create("fdb:future_cancel_lock");
