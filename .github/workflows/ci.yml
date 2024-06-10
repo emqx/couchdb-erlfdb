@@ -115,3 +115,40 @@ jobs:
                   "status": "done"
                 }
               }'
+
+  macos:
+    strategy:
+      matrix:
+        otp-version: ['25', '26']
+        fdb-version: ['7.3.27']
+    runs-on: macos-14
+    env:
+      FDB_VERSION: ${{ matrix.fdb-version }}
+      # Set to 1 for verbose rebar3 logging
+      DEBUG: 0
+      # Set to 1 for even more verbose rebar3 logging
+      DIAGNOSTIC: 0
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Erlang
+        run: |
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+          brew install erlang@${{ matrix.otp-version }}
+          echo "$(brew --prefix erlang@${{ matrix.otp-version }})/bin" >> $GITHUB_PATH
+          wget https://s3.amazonaws.com/rebar3/rebar3
+          sudo mv rebar3 /usr/local/bin/ && sudo chmod +x /usr/local/bin/rebar3
+          export "PATH=$(brew --prefix erlang@${{ matrix.otp-version }})/bin:$PATH"
+          erl -eval 'erlang:display(erlang:system_info(system_version)),halt()'
+      - name: Install FoundationDB
+        run: |
+          wget -q https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/FoundationDB-${FDB_VERSION}_arm64.pkg
+          sudo installer -pkg FoundationDB-${FDB_VERSION}_arm64.pkg -target /
+      - name: Initialize FDB database
+        run: fdbcli --exec "configure tenant_mode=optional_experimental; status" --timeout 60
+      - name: Compile
+        run: rebar3 compile
+      - name: EUnit tests
+        run: rebar3 eunit
