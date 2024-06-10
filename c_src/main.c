@@ -1240,7 +1240,7 @@ erlfdb_transaction_get_range_split_points(
     ErlFDBTransaction* t;
     ErlNifBinary begin;
     ErlNifBinary end;
-    int64_t chunkSize;
+    ErlNifSInt64 chunkSize;
     FDBFuture* future;
     void* res;
 
