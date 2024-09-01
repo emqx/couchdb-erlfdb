@@ -3,10 +3,15 @@
 MaxAPIVersion =
     begin
         VsnInfo = os:cmd("fdbcli --version"),
-        {match, [ProtocolStr]} = re:run(VsnInfo, "protocol ([a-f0-9]*)", [{capture, [1], list}]),
-        ProtocolVsn = list_to_integer(ProtocolStr, 16),
-        APIVersionBytes = (ProtocolVsn band 16#0000000FFF00000) bsr 20,
-        integer_to_list(APIVersionBytes, 16)
+        case re:run(VsnInfo, "protocol ([a-f0-9]*)", [{capture, [1], list}]) of
+            {match, [ProtocolStr]} ->
+                ProtocolVsn = list_to_integer(ProtocolStr, 16),
+                APIVersionBytes = (ProtocolVsn band 16#0000000FFF00000) bsr 20,
+                integer_to_list(APIVersionBytes, 16);
+            _ ->
+                io:format(user, "fdbcli is not installed~n", []),
+                halt(1)
+        end
     end.
 
 % https://github.com/markusn/coveralls-erl#example-usage-rebar3-and-github-actions
